@@ -15,8 +15,9 @@ from googleapiclient import discovery
 
 ## Google Sheet Credentials
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-SPREADSHEET_ID = '1A2spx394hFZEhArmSc0rxfgYddoQjs97QW-EiCF0U_4'
-
+# Original Spreadsheetid
+#SPREADSHEET_ID = '1A2spx394hFZEhArmSc0rxfgYddoQjs97QW-EiCF0U_4'
+SPREADSHEET_ID = '1V3jT3A3g_8TnIXv5e8ZdLlY8IoPK3ubV9_UmUu8V9ws'
 ## Function to open a sheet and load the data in dataframe
 def main(SAMPLE_SPREADSHEET_ID_input,SAMPLE_RANGE_NAME):
     #values_input, service
@@ -28,8 +29,7 @@ def main(SAMPLE_SPREADSHEET_ID_input,SAMPLE_RANGE_NAME):
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'google.json', SCOPES) # here enter the name of your downloaded JSON file
+            flow = InstalledAppFlow.from_client_secrets_file('google1.json', SCOPES) # here enter the name of your downloaded JSON file
             creds = flow.run_local_server(port=0)
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
@@ -154,7 +154,7 @@ def write_to_sheet(place,data,sheet_id):
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'google.json', SCOPES) # here enter the name of your downloaded JSON file
+                'google1.json', SCOPES) # here enter the name of your downloaded JSON file
             creds = flow.run_local_server(port=0)
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
@@ -287,24 +287,28 @@ def check_availability(faculty,start_date, end_date, start_time, end_time,resi_t
                 return True
 ###########################################################################
 #######################Function to read schedule of specific batch ###########
-def read_schedule(location,batch,sdate,ldate):
+def read_schedule(location,batch,sdate=0,ldate=0):
     #print(type(sdate))
-    sdate = pd.to_datetime(sdate)
-    ldate = pd.to_datetime(ldate)
+
     #print(type(ldate))
     df_batch_schedule = df_Schedule[(df_Schedule['Location']==location) & (df_Schedule['Batch']==batch)]
-    df_batch_schedule = df_batch_schedule[(df_batch_schedule['Start Date'].dt.date>=sdate) & (df_batch_schedule['Start Date'].dt.date<=ldate)]
+    if sdate!=0 and ldate!=0:
+        sdate = pd.to_datetime(sdate)
+        ldate = pd.to_datetime(ldate)
+        df_batch_schedule = df_batch_schedule[(df_batch_schedule['Start Date'].dt.date>=sdate) & (df_batch_schedule['Start Date'].dt.date<=ldate)]
     return df_batch_schedule
 ################################################################################
 
 #######################Function to read schedule of specific batch ###########
-def read_online_schedule(batch,sdate,ldate):
+def read_online_schedule(batch,sdate=0,ldate=0):
     #print(type(sdate))
-    sdate = pd.to_datetime(sdate)
-    ldate = pd.to_datetime(ldate)
+
     #print(type(ldate))
     df_online_batch_schedule = df_Online_Schedule[df_Online_Schedule['Batch']==batch]
-    df_online_batch_schedule = df_online_batch_schedule[(df_online_batch_schedule['Start Date'].dt.date>=sdate) & (df_online_batch_schedule['Start Date'].dt.date<=ldate)]
+    if sdate!=0 and ldate !=0:
+        sdate = pd.to_datetime(sdate)
+        ldate = pd.to_datetime(ldate)
+        df_online_batch_schedule = df_online_batch_schedule[(df_online_batch_schedule['Start Date'].dt.date>=sdate) & (df_online_batch_schedule['Start Date'].dt.date<=ldate)]
     return df_online_batch_schedule
 ################################################################################
 ################## Function to read the schedule for faculty #############
@@ -337,7 +341,7 @@ def update_sheet(place,data,sheet_id):
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'google.json', SCOPES) # here enter the name of your downloaded JSON file
+                'google1.json', SCOPES) # here enter the name of your downloaded JSON file
             creds = flow.run_local_server(port=0)
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
@@ -369,8 +373,8 @@ def set_batch(batch,location,latest_date,latest_module):
     #print(number.tolist())
     #condition =number.tolist()[0]
     x=df_Batch[(df_Batch['Batch']==batch) & (df_Batch['Location']==location)].index
-    s_date = df_Batch[(df_Batch['Batch']==batch) & (df_Batch['Location']==location)]['Start_date'][x[0]]
-    owner = df_Batch[(df_Batch['Batch']==batch) & (df_Batch['Location']==location)]['Batch_Owner'][x[0]]
+    s_date = df_Batch[(df_Batch['Batch']==batch) & (df_Batch['Location']==location)]['Start_date'].iloc[0]
+    owner = df_Batch[(df_Batch['Batch']==batch) & (df_Batch['Location']==location)]['Batch_Owner'].iloc[0]
     if latest_module == 'Case Study':
         active = 'NO'
     else:
@@ -392,7 +396,7 @@ def set_onlinebatch(batch,latest_date,latest_module):
     #print(number.tolist())
     #condition =number.tolist()[0]
     x=df_Onlinebatch[df_Onlinebatch['Batch']==batch]['Start_date'].index
-    s_date = df_Onlinebatch[df_Onlinebatch['Batch']==batch]['Start_date'][[0]]
+    s_date = df_Onlinebatch[df_Onlinebatch['Batch']==batch]['Start_date'].iloc[0]
     if latest_module == 'Case Study':
         active = 'NO'
     else:
@@ -459,7 +463,7 @@ def delet_row(spreadsheet_id, sheet_id, index):
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'google.json', SCOPES) # here enter the name of your downloaded JSON file
+                'google1.json', SCOPES) # here enter the name of your downloaded JSON file
             creds = flow.run_local_server(port=0)
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
@@ -479,7 +483,7 @@ def delet_row(spreadsheet_id, sheet_id, index):
 ################################################################################################
 
 ################# Function to delete the schedule #################
-def deletion(batch,location,module):
+def deletion(spreadsheet_id,batch,location,module):
     index = df_Schedule.index
     condition = (df_Schedule['Batch']==batch) & (df_Schedule['Location']==location) & (df_Schedule['Course']==module)
     number = index[condition]
@@ -494,17 +498,18 @@ def deletion(batch,location,module):
     stime = data['Start Time'][row-2]
     etime = data['End Time'][row-2]
     index1 = df_Calendar.index
-    condition = (df_Calendar['Faculty']==faculty) & (df_Calendar['Date']>=sdate) & (df_Calendar['Date']<=edate) & (df_Calendar['Module']==module)
+    condition = (df_Calendar['Faculty']==faculty) & (df_Calendar['Date']>=sdate) & (df_Calendar['Date']<=edate) & (df_Calendar['Module']==module) & (df_Batch['Start_Time']=='9:30:00 AM')
     number1 = index1[condition]
     row1 = number1.to_list()[0]+2
     data1 = df_Calendar[condition]
     print(row1,data1.shape)
-    delet_row('1A2spx394hFZEhArmSc0rxfgYddoQjs97QW-EiCF0U_4', 0, row-1)
+    delet_row(spreadsheet_id, 0, row-1)
     for i in range(data1.shape[0]):
-        delet_row('1A2spx394hFZEhArmSc0rxfgYddoQjs97QW-EiCF0U_4', 433910658, row1-1)
+        delet_row(spreadsheet_id, 433910658, row1-1)
+
 ######################################################################
 ################# Function to delete online schedule ##############
-def deletion_online(batch,module):
+def deletion_online(spreadsheet_id,batch,module):
     index = df_Online_Schedule.index
     condition = (df_Online_Schedule['Batch']==batch) &  (df_Online_Schedule['Course']==module)
     number = index[condition]
@@ -519,15 +524,103 @@ def deletion_online(batch,module):
     stime = data['Start Time'][row-2]
     etime = data['End Time'][row-2]
     index1 = df_Calendar.index
-    condition = (df_Calendar['Faculty']==faculty) & (df_Calendar['Date']>=sdate) & (df_Calendar['Date']<=edate) & (df_Calendar['Module']==module)
+    condition = (df_Calendar['Faculty']==faculty) & (df_Calendar['Date']>=sdate) & (df_Calendar['Date']<=edate) & (df_Calendar['Module']==module) & (df_Calendar['Start_Time']=='8:00:00 PM')
     number1 = index1[condition]
     st.write(number1)
     row1 = number1.to_list()[0]+2
     data1 = df_Calendar[condition]
     print(row1,data1.shape)
-    delet_row('1A2spx394hFZEhArmSc0rxfgYddoQjs97QW-EiCF0U_4', 1227198579, row-1)
+    delet_row(spreadsheet_id, 1227198579, row-1)
     for i in range(data1.shape[0]):
-        delet_row('1A2spx394hFZEhArmSc0rxfgYddoQjs97QW-EiCF0U_4', 433910658, row1-1)
+        delet_row(spreadsheet_id, 433910658, row1-1)
+###################################################################
+################# Update the data ########################
+def update_batchdata(location,batch,sdate,edate,module,faculty,Remarks,type_session = 'Residency'):
+    sdate = pd.to_datetime(sdate)
+    edate = pd.to_datetime(edate)
+    if location != 'Online':
+        index = df_Batch.index
+        condition = (df_Batch['Batch']==batch) & (df_Batch['Location']==location)
+        number = index[condition]
+        #print(number.tolist())
+        #condition =number.tolist()[0]
+        x=df_Batch[(df_Batch['Batch']==batch) & (df_Batch['Location']==location)].index
+        s_date = df_Batch[(df_Batch['Batch']==batch) & (df_Batch['Location']==location)]['Start_date'].iloc[0]
+        old_faculty = df_Schedule[(df_Schedule['Batch']==batch) & (df_Schedule['Location']==location) & (df_Schedule['Course']==module)]['Faculty'].iloc[0]
+        owner = df_Batch[(df_Batch['Batch']==batch) & (df_Batch['Location']==location)]['Batch_Owner'].iloc[0]
+        #latest_module = df_Batch[(df_Batch['Batch']==batch) & (df_Batch['Location']==location)]['Latest_scheduled_Module'].iloc[0]
+        if module == 'Case Study':
+            active = 'NO'
+        else:
+            active = 'YES'
+    #week = int(df_Batch[(df_Batch['Batch']==batch) & (df_Batch['Location']==location)]['Week_of_Year'][0])+1
+    #print(week)
+        number = index[condition]
+        row = number.tolist()[0]+2
+        print(row)
+        ranges = 'Batch!A'+str(row)
+        print(ranges)
+        update_sheet(ranges,list([batch, location, str(s_date),active, owner,module,str(sdate)]),SPREADSHEET_ID)
+        condition = (df_Schedule['Batch']==batch) & (df_Schedule['Location']==location) & (df_Schedule['Course']==module)
+        index2 = df_Schedule.index
+        number2 = index2[condition]
+        row2 = number2.to_list()[0]+2
+        ranges = 'Schedule!A'+str(row2)
+        ac = df_Batch[(df_Batch['Batch']==batch)&(df_Batch['Location']==location)]['Batch_Owner'].iloc[0]
+        #Rem = df_Schedule[(df_Schedule['Batch']==batch)&(df_Schedule['Location']==location)&(df_Schedule['Course']==module)]['Remarks'].iloc[0]           
+        update_sheet(ranges,list(['DSE-FT',location,str(sdate),str(edate),batch, module, faculty,ac,'9:30:00 AM','5:00:00 PM','Residency',2,7,Remarks]),SPREADSHEET_ID)
+        index1 = df_Calendar.index
+        print(old_faculty)
+        condition = (df_Calendar['Faculty']==old_faculty) & (df_Calendar['Batch']==batch) & (df_Calendar['Location']==location) &(df_Calendar['Module']==module)
+        number1 = index1[condition]
+        print(number1)
+        row1 = number1.to_list()[0]+2
+
+        data1 = df_Calendar[condition]
+
+        for i in range(data1.shape[0]):
+            delet_row(SPREADSHEET_ID, 433910658, row1-1)
+    elif location == 'Online':
+        index = df_Onlinebatch.index
+        condition = (df_Onlinebatch['Batch']==batch)
+        number = index[condition]
+        old_faculty = df_Online_Schedule[(df_Online_Schedule['Batch']==batch) & (df_Online_Schedule['Course']==module)]['Faculty'].iloc[0]
+    #print(number.tolist())
+    #condition =number.tolist()[0]
+        s_date = df_Onlinebatch[df_Onlinebatch['Batch']==batch]['Start_date'].iloc[0]
+        #latest_module = df_Onlinebatch[df_Onlinebatch['Batch']==batch]['Start_date'].iloc[0]
+        if module == 'Case Study':
+            active = 'NO'
+        else:
+            active = 'YES'
+    #week = int(df_Batch[(df_Batch['Batch']==batch) & (df_Batch['Location']==location)]['Week_of_Year'][0])+1
+    #print(week)
+        number = index[condition]
+        row = number.tolist()[0]+2
+        print(row)
+        ranges = 'Online_batch!A'+str(row)
+        print(ranges)
+        update_sheet(ranges,list([batch, str(s_date),active, module,str(sdate)]),SPREADSHEET_ID)
+        index2 = df_Online_Schedule.index
+        condition =(df_Online_Schedule['Batch']==batch)& (df_Online_Schedule['Course']==module) 
+        number2 = index2[condition]
+        row2 = number2.to_list()[0]+2
+        ranges = 'Schedule_online!A'+str(row2)
+        if type_session == 'Residency':
+            update_sheet(ranges,list(['DSE-Online',str(sdate),str(edate),batch,module,faculty,'8:00:00 PM', '10:00:00 PM',type_session,2,2,Remarks]),SPREADSHEET_ID)
+        else:
+            update_sheet(ranges,list(['DSE-Online',str(sdate),str(edate),batch,module,faculty,'9:30:00 AM', '1:30:00 PM',type_session,2,2,Remarks]),SPREADSHEET_ID)
+        index1 = df_Calendar.index
+        st.write(old_faculty)
+        condition = (df_Calendar['Faculty']==old_faculty) & (df_Calendar['Batch']==batch) & (df_Calendar['Location']=='Online') &(df_Calendar['Module']==module)
+        number1 = index1[condition]
+        row1 = number1.to_list()[0]+2
+        data1 = df_Calendar[condition]
+        print(row1,data1.shape)
+        #delet_row(spreadsheet_id, 1227198579, row-1)
+        for i in range(data1.shape[0]):
+            delet_row(SPREADSHEET_ID, 433910658, row1-1) 
+
 ################# Function to get feedback #####################
 def get_ratings(faculty,module):
     df_Rating['Faculty']=df_Rating['Faculty'].str.lower()
@@ -560,7 +653,7 @@ def get_dates_lab(start_date, weekday,no_sessions):
 ######### GUI Code #####################
 ### Choosing Between Full time and Online Schedule
 st.header("Faculty Planner")
-application = st.sidebar.radio("Choose Application",('View Existing','Create New','Delete'))
+application = st.sidebar.radio("Choose Application",('View Existing','Create New','Update','Delete'))
 if application == 'Delete':
     #with st.form("Edit Form", clear_on_submit=False):
     st.write('Choose the batch and schedule details')
@@ -581,51 +674,8 @@ if application == 'Delete':
         module = st.selectbox('Module Name',module_list)
         con = st.button("Confirm deletion",101)
         if con:
-            deletion(batch,location,module)
-        '''  elif operation == 'Update':
-            st.write("Select Module to update")
-            module_list = list(df_Modules['Module Name'])
-            module = st.selectbox('Module Name',module_list)
-            st.write("Please select new data to update")
-            start_date = st.date_input('Start Date',min_value=datetime.date(2021, 1, 1))
-            end_date = st.date_input('End Date',min_value=datetime.date(2021, 1, 1))
-            av=[]
-            ratings=[]
-            search = st.button("Search Faculty",102)
-            if search:
-                deletion(batch,location,module)
-                st.write("Record deleted")
-                df_all = search_faculty(module,location)
-                df_all.sort_values('Weight', axis=0, ascending=False, inplace=True )
-                for fac in df_all['Name']:
-                    ratings.append(get_ratings(fac,module))
-                    av.append(check_availability(fac,start_date, end_date, '9:30:00 AM', '5:00:00 PM','FT'))
-                df_all['Available'] = av
-                df_all['Ratings']=ratings
-
-                df_all.sort_values(['Available','Weight'], axis=0, ascending=False, inplace=True )
-                st.write(df_all)
-                st.write('Proceed to schedule')
-                faculty = st.selectbox('Faculty',df_all['Name'])
-                st.write("Selected Faculty:",faculty)
-                available = check_availability(faculty,start_date, end_date, '9:30:00 AM', '5:00:00 PM','FT')
-                st.write(available)
-                if available:
-                    st.write('Faculty is available')
-                    Remarks = st.selectbox('Remarks',['Regular','Revision','Remedial','Prep','Extra','NA'])
-                    st.write('Press Submit to confirm the schedule')
-                    save = st.button('Submit')
-                    if save:
-                        ac = df_Batch[(df_Batch['Batch']==batch)&(df_Batch['Location']==location)]['Batch_Owner'].iloc[0]
-                        #print(ac)
-                        write_to_sheet('Schedule',list(['DSE-FT',location,str(start_date), str(end_date),batch,module,faculty,ac,'9:30:00 AM', '5:00:00 PM','Residency',7,7,Remarks]),SPREADSHEET_ID) 
-                        dates=pd.date_range(start= start_date, end=end_date)
-                        for d in dates:
-                            write_to_sheet('Calendar',list([faculty,str(d),'9:30:00 AM', '5:00:00 PM',module]),SPREADSHEET_ID)
-                        set_batch(batch,location,str(start_date),module)
-                        st.write("Saving the Data, Please wait")
-                else:
-                    st.write("Faculty not available")  '''
+            deletion(SPREADSHEET_ID,batch,location,module)
+        
         #st.experimental_rerun()
     elif batch_type == 'Online':
         batches = all_onlineactive()
@@ -641,60 +691,8 @@ if application == 'Delete':
         module = st.selectbox('Module Name',module_list)
         con1 = st.button("Confirm deletion",103)
         if con1:
-            deletion_online(batch,module)
-        ''' elif operation == 'Update':
-            st.write("Select Module to update")
-            module_list = list(df_Modules['Module Name'])
-            module = st.selectbox('Module Name',module_list)
-            st.write("provide new data to update")
-            start_date = st.date_input('Start Date',min_value=datetime.date(2021, 1, 1))
-            session_count = int(st.text_input("Number of sessions",value="0"))
-            type_session = st.radio("Type of Session",['Residency','Lab'])
-            st.write("Select days of week")
-            days = st.multiselect('Week Days',['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'])
-            if type_session == 'Residency':
-                resi_dates=get_dates_resi(start_date,days[0],days[1],session_count)
-            elif type_session == 'Lab':
-                resi_dates=get_dates_lab(start_date,days[0],session_count)
-            av=[]
-            ratings=[]
-            search1 = st.button("Search Faculty",104)
-            if search1:
-                df_all = search_faculty(module,'Online')
-                df_all.sort_values('Weight', axis=0, ascending=False, inplace=True )
-                for fac in df_all['Name']:
-                    ratings.append(get_ratings(fac,module))
-                    result = True
-                    for d in resi_dates:
-                        result = check_availability(fac,d,d, '8:00:00 PM', '10:00:00 PM','FT')
-                        if result == 'False':
-                            break
-                        av.append(result)
-                df_all['Available'] = av
-                df_all['Ratings']=ratings
-
-                df_all.sort_values(['Available','Weight'], axis=0, ascending=False, inplace=True )
-                st.write(df_all)
-                st.write('Proceed to schedule')
-                faculty = st.selectbox('Faculty',df_all['Name'])
-                for d in resi_dates:
-                    result = check_availability(faculty,d,d, '8:00:00 PM', '10:00:00 PM','FT')
-                    if result == 'False':
-                        st.write("Faculty not available")
-                        break
-                else:
-                    st.write("Faculty is available")
-                    st.write('Press Submit to confirm the schedule')
-                    Remarks = st.selectbox('Regular','Remarks',['Revision','Remedial','Prep','Extra','NA'])
-                    save = st.button('Submit')
-                    if save:
-                        ## To do work
-                        write_to_sheet('Schedule_online',list(['DSE-Online',str(resi_dates[0]), str(resi_dates[-1]),batch,module,faculty,'8:00:00 PM', '10:00:00 PM',type_session,2,2,Remarks]),SPREADSHEET_ID) 
-                        for d in resi_dates:
-                            write_to_sheet('Calendar',list([faculty,str(d),'8:00:00 PM', '10:00:00 PM',module]),SPREADSHEET_ID)
-                        set_onlinebatch(batch,str(start_date),module)
-                        st.write("Saving the Data, Please wait")
-        #st.experimental_rerun() '''
+            deletion_online(SPREADSHEET_ID,batch,module)
+       
 if application=='Create New':
     batch_type = st.sidebar.radio( "Type of Batch", ("Full-Time", "Online"))
 
@@ -704,11 +702,10 @@ if application=='Create New':
         df_active = all_active(location)
         #print(list(df_active.Batch))
         batch = st.selectbox('Select Batch',list(df_active.Batch))
-        status = next_module_date(batch,location)
-        #if len(status)==4:
-        st.write('Batch Selected : ',location,batch)
-        st.write('Schedule available: Module:',status[0],'Week:', str(status[1])[:10])
-            #st.write('Upcoming Schedule: Module:',status[2],'Week',str(status[3])[:10])
+        views = st.button("View Existing Schedule",201)
+        if views:
+            df = read_schedule(location,batch)
+            st.write(df)
         choice = st.radio('Do you want to schedule?',('Yes','No'))
         if choice == 'Yes':
             module_list = list(df_Modules['Module Name'])
@@ -743,7 +740,7 @@ if application=='Create New':
                     write_to_sheet('Schedule',list(['DSE-FT',location,str(start_date), str(end_date),batch,module,faculty,ac,'9:30:00 AM', '5:00:00 PM','Residency',7,7,Remarks]),SPREADSHEET_ID) 
                     dates=pd.date_range(start= start_date, end=end_date)
                     for d in dates:
-                        write_to_sheet('Calendar',list([faculty,str(d),'9:30:00 AM', '5:00:00 PM',module]),SPREADSHEET_ID)
+                        write_to_sheet('Calendar',list([faculty,str(d),'9:30:00 AM', '5:00:00 PM',module,location,batch]),SPREADSHEET_ID)
                     set_batch(batch,location,str(start_date),module)
                     
                     #final=st.radio('Do you want confirm?',('Yes','No'))
@@ -757,22 +754,16 @@ if application=='Create New':
                             #write_to_sheet('Calendar',list([faculty,str(d),'9:30:00 AM', '5:00:00 PM']),SPREADSHEET_ID)'''
             else:
                 st.write('Faculty not avaialable')
-        else:
-            st.write('The latest scheduled module for',location,batch, 'is',status[0],'for the week of', str(status[1])[:10])
-            st.write('The batch has finished all modules')
-            final = st.radio('Do you want to set it inactive',('YES','NO'))
-            if final=='Yes':
-                set_inactive(batch,location)
-                
+                       
             
     else:
+        
         batches = all_onlineactive()
         batch = st.selectbox('Batch',list(batches.Batch))
-        status = next_module_date_online(batch)
-        st.write('The batch selected is: ',batch)
-        st.write('Latest Schedule available')
-        st.write('Module:',status[0])
-        st.write('Date:  ',status[1])
+        from_date = st.date_input("From Date")
+        to_date = st.date_input("To Date")
+        df = read_online_schedule(batch,from_date,to_date)
+        st.write(df)
         choice = st.radio('Do you want to schedule?',('Yes','No'))
         if choice == 'Yes':
             module_list = list(df_Modules['Module Name'])
@@ -795,7 +786,10 @@ if application=='Create New':
                 ratings.append(get_ratings(fac,module))
                 result = True
                 for d in resi_dates:
-                    result = check_availability(fac,d,d, '8:00:00 PM', '10:00:00 PM','FT')
+                    if type_session == ' Residency':
+                        result = check_availability(fac,d,d, '8:00:00 PM', '10:00:00 PM','FT')
+                    else:
+                        result = check_availability(fac,d,d,'9:30:00 AM','1:30:00 PM', 'FT')
                     if result == 'False':
                         break
                 av.append(result)
@@ -807,7 +801,10 @@ if application=='Create New':
             st.write('Proceed to schedule')
             faculty = st.selectbox('Faculty',df_all['Name'])
             for d in resi_dates:
-                result = check_availability(faculty,d,d, '8:00:00 PM', '10:00:00 PM','FT')
+                if type_session == 'Residency':
+                    result = check_availability(faculty,d,d, '8:00:00 PM', '10:00:00 PM','FT')
+                else:
+                    result = check_availability(faculty,d,d,'9:30:00 AM','1:30:00 PM','FT')
                 if result == 'False':
                     st.write("Faculty not available")
                     break
@@ -818,9 +815,15 @@ if application=='Create New':
                 save = st.button('Submit')
                 if save:
                     ## To do work
-                    write_to_sheet('Schedule_online',list(['DSE-Online',str(resi_dates[0]), str(resi_dates[-1]),batch,module,faculty,'8:00:00 PM', '10:00:00 PM',type_session,2,2,Remarks]),SPREADSHEET_ID) 
+                    if type_session == 'Residency':
+                        write_to_sheet('Schedule_online',list(['DSE-Online',str(resi_dates[0]), str(resi_dates[-1]),batch,module,faculty,'8:00:00 PM', '10:00:00 PM',type_session,2,2,Remarks]),SPREADSHEET_ID) 
+                    else:
+                         write_to_sheet('Schedule_online',list(['DSE-Online',str(resi_dates[0]), str(resi_dates[-1]),batch,module,faculty,'9:30:00 AM', '1:30:00 PM',type_session,2,2,Remarks]),SPREADSHEET_ID) 
                     for d in resi_dates:
-                        write_to_sheet('Calendar',list([faculty,str(d),'8:00:00 PM', '10:00:00 PM',module]),SPREADSHEET_ID)
+                        if type_session == 'Residency':
+                            write_to_sheet('Calendar',list([faculty,str(d),'8:00:00 PM', '10:00:00 PM',module,'Online',batch]),SPREADSHEET_ID)
+                        else:
+                            write_to_sheet('Calendar',list([faculty,str(d),'9:30:00 AM', '1:30:00 PM',module,'Online',batch]),SPREADSHEET_ID)
                     set_onlinebatch(batch,str(start_date),module)
 if application=='View Existing':
     view =st.sidebar.radio("Select View",("Faculty View","Batch View"))
@@ -849,3 +852,122 @@ if application=='View Existing':
         to_date = st.date_input("To Date")
         df = read_faculty_schedule(fac,from_date,to_date)
         st.write(df)
+
+            
+if application == 'Update':
+    btype = st.sidebar.radio("Batch Type",('Full-Time','Online'))
+    if btype == 'Full-Time':
+        
+        location = st.selectbox('City',('Banglore','Chennai','Gurgaon','Hyderabad','Mumbai','Pune'))
+        df_active = all_active(location)
+            #print(list(df_active.Batch))
+        batch = st.selectbox('Select Batch',list(df_active.Batch))
+        df = read_schedule(location,batch)
+        st.write(df)
+        module_list = list(df_Modules['Module Name'])
+        print(module_list)
+        st.write("Enter new data for update")
+        module = st.selectbox('Module to update',module_list)
+        df_all = search_faculty(module,location)
+        print("*****DF_all******",df_all,sep='\n')
+            #df_all.sort_values('Weight', axis=0, ascending=False, inplace=True )
+        start_date = st.date_input('Start Date',min_value=datetime.date(2021, 1, 1))
+        end_date = st.date_input('End Date',min_value=datetime.date(2021, 1, 1))
+        av=[]
+        ratings=[]
+        for fac in df_all['Name']:
+            ratings.append(get_ratings(fac,module))
+            av.append(check_availability(fac,start_date, end_date, '9:30:00 AM', '5:00:00 PM','FT'))
+        df_all['Available'] = av
+        df_all['Ratings']=ratings
+        print("**************",df_all)
+        df_all.sort_values(['Available','weight'], axis=0, ascending=False, inplace=True )
+        st.write(df_all)
+        st.write('Proceed to update')
+        faculty = st.selectbox('Faculty',df_all['Name'])
+        if faculty == df_Schedule[(df_Schedule['Location']==location) & (df_Schedule['Batch']==batch) & (df_Schedule['Course']==module)]['Faculty'].iloc[0]:
+            available=True
+        else:
+            available = check_availability(faculty,start_date, end_date, '9:30:00 AM', '5:00:00 PM','FT')
+        if available:
+            st.write('Faculty is available')
+            Remarks = st.selectbox('Remarks',['Residency','Revision','Remedial','Prep','Extra','NA'])
+            st.write('Press Submit to confirm the schedule')
+            save = st.button('Submit')
+            if save:
+                ac = df_Batch[(df_Batch['Batch']==batch)&(df_Batch['Location']==location)]['Batch_Owner'].iloc[0]
+                print(ac)
+                #write_to_sheet('Schedule',list(['DSE-FT',location,str(start_date), str(end_date),batch,module,faculty,ac,'9:30:00 AM', '5:00:00 PM','Residency',7,7,Remarks]),SPREADSHEET_ID) 
+                update_batchdata(location,batch,start_date,end_date,module,faculty,Remarks)
+                dates=pd.date_range(start= start_date, end=end_date)
+                for d in dates:
+                    write_to_sheet('Calendar',list([faculty,str(d),'9:30:00 AM', '5:00:00 PM',module,location,batch]),SPREADSHEET_ID)
+                set_batch(batch,location,str(start_date),module)
+
+    elif btype == 'Online':
+        batches = all_onlineactive()
+        batch = st.selectbox('Batch',list(batches.Batch))
+        df = read_online_schedule(batch)
+        st.write(df)
+        module_list = list(df_Modules['Module Name'])
+        print(module_list)
+        st.write("Enter new data for update")
+        module = st.selectbox('Module to update',module_list)
+        #df_all = search_faculty(module,location)
+        df_all = search_faculty(module,'Online')
+        #df_all.sort_values('weight', axis=0, ascending=False, inplace=True )
+        start_date = st.date_input('Start Date',min_value=datetime.date(2021, 1, 1))
+        session_count = int(st.text_input("Number of sessions",value="0"))
+        type_session = st.radio("Type of Session",['Residency','Lab'])
+        st.write("Select days of week")
+        days = st.multiselect('Week Days',['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'])
+        if type_session == 'Residency':
+            resi_dates=get_dates_resi(start_date,days[0],days[1],session_count)
+        elif type_session == 'Lab':
+            resi_dates=get_dates_lab(start_date,days[0],session_count)
+        av=[]
+        ratings=[]
+        for fac in df_all['Name']:
+            ratings.append(get_ratings(fac,module))
+            result = True
+            for d in resi_dates:
+                result = check_availability(fac,d,d, '8:00:00 PM', '10:00:00 PM','FT')
+                if result == 'False':
+                    break
+            av.append(result)
+        df_all['Available'] = av
+        df_all['Ratings']=ratings
+
+        df_all.sort_values(['Available','weight'], axis=0, ascending=False, inplace=True )
+        st.write(df_all)
+        st.write('Proceed to update')
+        faculty = st.selectbox('Faculty',df_all['Name'])
+        result = True
+        if faculty == df_Online_Schedule[(df_Online_Schedule['Batch']==batch) & (df_Online_Schedule['Course']==module)]['Faculty'].iloc[0]:
+            result = True
+        else:
+            for d in resi_dates:
+                if type_session == 'Residency':
+                    result = check_availability(faculty,d,d, '8:00:00 PM', '10:00:00 PM','FT')
+                else:
+                    result = check_availability(faculty,d,d,'9:30:00 AM','1:30:00 PM','FT')
+                if result == 'False':
+                    st.write("Faculty not available")
+                    break
+            else:
+                st.write("Faculty is available")
+                st.write('Press Submit to confirm the schedule')
+                Remarks = st.selectbox('Remarks',['Revision','Remedial','Prep','Extra','NA'])
+                save = st.button('Submit')
+                if save:
+                    ## To do work
+                    if type_session == 'Residency':
+                        update_batchdata('Online',batch,resi_dates[0],resi_dates[-1],module,faculty,Remarks,'Residency') 
+                    else:
+                        update_batchdata('Online',batch,resi_dates[0],resi_dates[-1],module,faculty,Remarks,'Lab') 
+                    for d in resi_dates:
+                        if type_session == 'Residency':
+                            write_to_sheet('Calendar',list([faculty,str(d),'8:00:00 PM', '10:00:00 PM',module,'Online',batch]),SPREADSHEET_ID)
+                        else:
+                            write_to_sheet('Calendar',list([faculty,str(d),'9:30:00 AM', '1:30:00 PM',module,'Online',batch]),SPREADSHEET_ID)
+                    set_onlinebatch(batch,str(start_date),module)
