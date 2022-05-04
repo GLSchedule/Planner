@@ -19,7 +19,7 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 #SPREADSHEET_ID = '1A2spx394hFZEhArmSc0rxfgYddoQjs97QW-EiCF0U_4'
 SPREADSHEET_ID = '1V3jT3A3g_8TnIXv5e8ZdLlY8IoPK3ubV9_UmUu8V9ws'
 ## Function to open a sheet and load the data in dataframe ## Added to enhance the performance/speed of  an app
-@st.cache(allow_output_mutation=True) ## Added to enhance the performance/speed of  an app
+#@st.cache(allow_output_mutation=True) ## Added to enhance the performance/speed of  an app
 def main(SAMPLE_SPREADSHEET_ID_input,SAMPLE_RANGE_NAME):
     #values_input, service
     creds = None
